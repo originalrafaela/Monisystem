@@ -1,0 +1,100 @@
+{
+  "date": "2026-11-05T19:49:15.094787+00:00",
+  "release": "BLOQUEADO",
+  "environment": {
+    "node": "26.13.0",
+    "firebase": "local emulators only",
+    "screens": "synthetic hooks and host elements; not native rendering"
+  },
+  "checks": {
+    "typecheck": "PASSOU",
+    "globalLint": "PASSOU",
+    "fastTests": {
+      "status": "PASSOU",
+      "count": 40,
+      "scenarios": [
+        "reject invalid coordinates and missing report photo/category/description",
+        "priorities have at most three unique supported categories",
+        "distance is meters, accounts for longitude and antimeridian",
+        "region polygon excludes holes",
+        "native auth exchanges Google token and restores SDK session observer",
+        "session observer ignores late response after signout",
+        "upload failure discards reservation and never completes publication",
+        "capture URI cannot escape app cache or load remote files",
+        "production transport requires HTTPS and maps missing auth",
+        "structured errors conceal internal details; emulator guards reject real projects",
+        "environment configuration refuses mixed emulator/remote setup and missing identifiers",
+        "cancelled Google login never creates Firebase credentials",
+        "photo finalization failure schedules compensation and returns structured failure",
+        "transport recusa HTTP remoto sem criptografia",
+        "sem sessão não faz requisição",
+        "falha de rede vira resultado indisponível",
+        "logout durante resolução da sessão não restaura sessão antiga",
+        "login cancelado/falho não navega; sucesso navega",
+        "publicação incompleta não chama upload; câmera/GPS negados exibem erro recuperável",
+        "retry de publicação preserva upload e chave após falha de rede",
+        "upload falho nunca cria relato; coordenada inválida bloqueia publicação",
+        "quarta prioridade é rejeitada; falha de save não atualiza estado local",
+        "feed exige GPS e envia raio de 5000 m; erro de rede é recuperável",
+        "feed pagina sem duplicar e reinicia cursor ao mudar categoria",
+        "preferências não podem ser sobrescritas quando carga inicial falha",
+        "usuário sem sessão não envia publicação mesmo com formulário completo",
+        "perfil carrega dados; falha no logout preserva navegação; sucesso encerra sessão",
+        "detalhes consulta relatos reais pelo id e mostra descrição",
+        "histórico preserva relatos quando indicadores falham",
+        "BUG-C01: preferências salvas são carregadas ao reabrir a tela",
+        "BUG-C02: resposta perdida bloqueia edição e confirma o mesmo payload",
+        "feed real inclui 4999.9 m e exclui 5000.1 m",
+        "fronteira numérica inclusiva em 5000 m e filtros de categoria/região/expiração",
+        "distância em São Paulo e antimeridiano usa unidades geográficas corretas",
+        "contrato rejeita raio maior que 5 km e prioridades inválidas",
+        "permissão GPS negada nunca consulta coordenadas",
+        "GPS desativado é recuperável e não tenta obter posição",
+        "falha de provedor GPS é convertida em orientação ao usuário",
+        "GPS sem resposta respeita timeout (relógio simulado)",
+        "GPS aceito retorna apenas coordenadas da consulta"
+      ]
+    },
+    "backendIntegration": {
+      "status": "PASSOU",
+      "subscenarios": [
+        "session creates separate private account/public profile id and survives reentry",
+        "preferences validate count, uniqueness, catalog and persist",
+        "Storage rules permit only reserved author upload and block spoofed/oversized files",
+        "Firestore rules deny private reads and all client mutation bypasses",
+        "image processing validates bytes and removes metadata; rejects another owner",
+        "publication is idempotent, immutable by key and contains no private UID",
+        "grouping uses category, precise distance, time and active state",
+        "concurrent distinct publications select a single group",
+        "geohash feed filters real 5km radius, category and sorts time descending",
+        "pagination is bound to user and filters",
+        "metrics aggregate day, region and category transactionally",
+        "notification preparation persists device privately and plans deduplicated jobs only",
+        "logical alert expiry preserves history; 14 days excludes reports and photo without cleanup",
+        "HTTP boundary rejects missing/invalid tokens and accepts emulated Auth identity"
+      ],
+      "nodeCounterIncludingParent": 15
+    },
+    "firebaseRules": {
+      "status": "PASSOU",
+      "negativeAssertions": 18,
+      "allowedControls": 1
+    },
+    "android": "BLOQUEADO",
+    "stagedCandidate": {
+      "reviewedAt": "2026-11-05T19:48:33.419229+00:00",
+      "candidateFiles": 76,
+      "differentFromWorkingTree": [],
+      "diffCheckExit": 0,
+      "additionalQaReportsNotInCandidate": [
+        "qa/continuous.md",
+        "qa/continuous-matrix.md"
+      ]
+    }
+  },
+  "limits": [
+    "Real Android/Google/camera/GPS cycle not executed",
+    "Pattern scans cannot prove absence of secrets",
+    "QA reports still require inclusion by publication owner"
+  ]
+}

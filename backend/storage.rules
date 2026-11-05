@@ -1,0 +1,19 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /staging/{uid}/{uploadId}/original {
+      function reservation() {
+        return firestore.get(/databases/(default)/documents/uploads/$(uploadId)).data;
+      }
+      allow create: if resource == null && request.auth != null && request.auth.uid == uid
+        && reservation().ownerUid == uid
+        && reservation().status == 'reserved'
+        && reservation().expiresAt > request.time
+        && request.resource.size > 0 && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType in ['image/jpeg', 'image/png', 'image/webp'];
+      allow read, update, delete: if false;
+    }
+    // Processed photos are delivered by an authenticated endpoint after expiry checks.
+    match /{path=**} { allow read, write: if false; }
+  }
+}

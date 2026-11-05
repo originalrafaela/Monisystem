@@ -1,0 +1,8 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // All DTOs and mutations pass through the authenticated backend.
+    // Private upload reservation is needed only by Storage rules.
+    match /{document=**} { allow read, write: if false; }
+  }
+}

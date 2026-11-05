@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "Monisystem",
+    "slug": "monisystem",
+    "version": "0.1.0",
+    "scheme": "monisystem",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      "expo-router",
+      "@react-native-firebase/app",
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permita que o Monisystem fotografe ocorrências urbanas.",
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Permita que o Monisystem obtenha sua localização para publicar e consultar ocorrências próximas."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "android": {
+      "package": "com.monisystem.app"
+    },
+    "extra": {
+      "monisystem": {
+        "mode": "unconfigured",
+        "webClientId": "",
+        "endpoint": ""
+      }
+    }
+  }
+}

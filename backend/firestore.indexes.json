@@ -1,0 +1,13 @@
+{
+  "indexes": [
+    { "collectionGroup": "incidents", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "categoryId", "order": "ASCENDING" }, { "fieldPath": "geohash", "order": "ASCENDING" }] },
+    { "collectionGroup": "reports", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "incidentId", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "reports", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "regionId", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }] },
+    { "collectionGroup": "regionalMetrics", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "regionId", "order": "ASCENDING" }, { "fieldPath": "periodStart", "order": "DESCENDING" }] }
+  ],
+  "fieldOverrides": [
+    { "collectionGroup": "reports", "fieldPath": "description", "indexes": [] },
+    { "collectionGroup": "devices", "fieldPath": "pushToken", "indexes": [] },
+    { "collectionGroup": "regions", "fieldPath": "boundary", "indexes": [] }
+  ]
+}

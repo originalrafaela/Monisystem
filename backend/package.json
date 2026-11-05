@@ -1,0 +1,31 @@
+{
+  "name": "monisystem-backend-local",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/backend/src/index.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test --test-isolation=none dist/backend/tests/unit.test.js",
+    "test:integration": "npm run build && node --test --test-isolation=none dist/backend/tests/integration.test.js",
+    "test:emulators": "npm run build && firebase emulators:exec --project demo-monisystem --only auth,firestore,storage,functions 'node --test --test-isolation=none dist/backend/tests/integration.test.js'",
+    "emulators": "npm run build && firebase emulators:start --project demo-monisystem --only auth,firestore,storage,functions",
+    "cleanup:local": "npm run build && node dist/backend/src/cleanup.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^14.5.0",
+    "firebase-functions": "^7.4.0",
+    "geofire-common": "^6.0.0",
+    "sharp": "^0.35.5",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "@types/node": "^22.0.0",
+    "firebase": "^13.2.0",
+    "firebase-tools": "^15.35.0",
+    "typescript": "~5.9.2"
+  }
+}
