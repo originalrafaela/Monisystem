@@ -9,6 +9,7 @@
     "plugins": [
       "expo-router",
       "@react-native-firebase/app",
+      "@react-native-firebase/auth",
       "@react-native-google-signin/google-signin",
       [
         "expo-camera",
@@ -28,13 +29,12 @@
       "typedRoutes": true
     },
     "android": {
-      "package": "com.monisystem.app"
+      "package": "com.monisystem.app",
+      "googleServicesFile": "./google-services.json"
     },
     "extra": {
       "monisystem": {
-        "mode": "unconfigured",
-        "webClientId": "",
-        "endpoint": ""
+        "mode": "firebase"
       }
     }
   }
