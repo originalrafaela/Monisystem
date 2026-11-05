@@ -1,0 +1,53 @@
+# Dependencies, generated output and native projects (Expo prebuild)
+node_modules/
+.expo/
+dist/
+coverage/
+android/
+ios/
+expo-env.d.ts
+*.tsbuildinfo
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+.npmrc
+local.properties
+google-services.json
+GoogleService-Info.plist
+*service-account*.json
+*serviceAccount*.json
+*.keystore
+*.jks
+*.p12
+*.pem
+*.key
+.aws/
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+
+# Internal tooling and transient files
+.maestri/
+.codex/
+.agents/
+AGENTS.md
+**/AGENTS.md
+CLAUDE.md
+GEMINI.md
+.cursor/
+*.log
+*.tmp
+*.swp
+.DS_Store
+.idea/
+.vscode/
+
+# Internal assistant configuration is never a project deliverable
+.cursor/
+CLAUDE.md
+**/CLAUDE.md
+GEMINI.md
+**/GEMINI.md
