@@ -5,18 +5,24 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { Backend } from './backend';
 import { requireThat } from './core';
 import { SupabasePhotoBucket } from './storage';
+import { StartupFailure, startupCheck } from './startup';
 
 export async function createProductionRuntime(env: NodeJS.ProcessEnv = process.env) {
-  requireThat(env.MONISYSTEM_ENV === 'production' && env.GCLOUD_PROJECT === 'monisystem-f6d63', 'unavailable', 'Ambiente remoto não configurado.');
-  requireThat(!env.FIRESTORE_EMULATOR_HOST && !env.FIREBASE_AUTH_EMULATOR_HOST && !env.FIREBASE_STORAGE_EMULATOR_HOST, 'unavailable', 'Emuladores proibidos no ambiente remoto.');
-  requireThat(!!env.FIREBASE_SERVICE_ACCOUNT_JSON && !!env.SUPABASE_URL && !!env.SUPABASE_SERVICE_ROLE_KEY && !!env.SUPABASE_STORAGE_BUCKET, 'unavailable', 'Configuração administrativa incompleta.');
-  const credentials = z.object({ project_id: z.string(), client_email: z.string().email(), private_key: z.string().min(1) }).parse(JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_JSON));
-  requireThat(credentials.project_id === env.GCLOUD_PROJECT, 'unavailable', 'Credencial de outro projeto.');
-  const bucket = new SupabasePhotoBucket({ url: env.SUPABASE_URL, serviceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY, bucket: env.SUPABASE_STORAGE_BUCKET });
+  if (env.MONISYSTEM_ENV !== 'production') throw new StartupFailure('ENV_MODE');
+  if (env.GCLOUD_PROJECT !== 'monisystem-f6d63') throw new StartupFailure('ENV_PROJECT');
+  if (env.FIRESTORE_EMULATOR_HOST || env.FIREBASE_AUTH_EMULATOR_HOST || env.FIREBASE_STORAGE_EMULATOR_HOST) throw new StartupFailure('ENV_EMULATOR');
+  const { FIREBASE_SERVICE_ACCOUNT_JSON, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_STORAGE_BUCKET } = env;
+  if (!FIREBASE_SERVICE_ACCOUNT_JSON || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !SUPABASE_STORAGE_BUCKET) throw new StartupFailure('ENV_MISSING');
+  const parsed: unknown = startupCheck('FIREBASE_JSON', () => JSON.parse(FIREBASE_SERVICE_ACCOUNT_JSON));
+  const credentials = startupCheck('FIREBASE_FIELDS', () => z.object({ project_id: z.string(), client_email: z.string().email(), private_key: z.string().min(1) }).parse(parsed));
+  if (credentials.project_id !== env.GCLOUD_PROJECT) throw new StartupFailure('FIREBASE_PROJECT');
+  const bucket = startupCheck('SUPABASE_CONFIG', () => new SupabasePhotoBucket({ url: SUPABASE_URL, serviceRoleKey: SUPABASE_SERVICE_ROLE_KEY, bucket: SUPABASE_STORAGE_BUCKET }));
   await bucket.assertPrivate();
-  const app = getApps()[0] ?? initializeApp({ projectId: env.GCLOUD_PROJECT, credential: cert({ projectId: credentials.project_id, clientEmail: credentials.client_email, privateKey: credentials.private_key }) });
-  requireThat(app.options.projectId === env.GCLOUD_PROJECT, 'unavailable', 'Projeto Firebase incompatível.');
-  const backend = new Backend(getFirestore(app), bucket, { metricRetentionDays: 14 });
+  const { app, backend } = startupCheck('FIREBASE_INIT', () => {
+    const app = getApps()[0] ?? initializeApp({ projectId: env.GCLOUD_PROJECT!, credential: cert({ projectId: credentials.project_id, clientEmail: credentials.client_email, privateKey: credentials.private_key }) });
+    requireThat(app.options.projectId === env.GCLOUD_PROJECT, 'unavailable', 'Projeto Firebase incompatível.');
+    return { app, backend: new Backend(getFirestore(app), bucket, { metricRetentionDays: 14 }) };
+  });
   return { backend, verifyToken: async (token: string) => {
     const decoded = await getAuth(app).verifyIdToken(token, true);
     return { uid: decoded.uid, ...(typeof decoded.name === 'string' ? { name: decoded.name } : {}) };

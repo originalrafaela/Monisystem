@@ -1,4 +1,5 @@
 import { MAX_PHOTO_BYTES, requireThat, ServiceError } from './core';
+import { StartupFailure } from './startup';
 
 export interface PhotoMetadata { size?: string | number; contentType?: string }
 export interface PhotoSaveOptions {
@@ -48,10 +49,16 @@ export class SupabasePhotoBucket implements PhotoBucket {
   }
   async assertPrivate(): Promise<void> {
     this.privateVerified = false;
-    const response = await this.request('/bucket/' + encodeURIComponent(this.config.bucket));
-    requireThat(response.ok, 'unavailable', 'Bucket privado indisponível.');
-    const bucket = await response.json() as { id?: string; name?: string; public?: boolean };
-    requireThat(bucket.public === false && (bucket.id === this.config.bucket || bucket.name === this.config.bucket), 'unavailable', 'Bucket deve existir e ser privado.');
+    let response: Response;
+    try { response = await this.request('/bucket/' + encodeURIComponent(this.config.bucket)); }
+    catch { throw new StartupFailure('SUPABASE_CONNECT'); }
+    if (!response.ok) throw new StartupFailure('SUPABASE_HTTP', response.status);
+    let bucket: unknown;
+    try { bucket = await response.json(); }
+    catch { throw new StartupFailure('SUPABASE_BUCKET_RESPONSE'); }
+    if (!bucket || typeof bucket !== 'object') throw new StartupFailure('SUPABASE_BUCKET_RESPONSE');
+    if (!('public' in bucket) || bucket.public !== false) throw new StartupFailure('SUPABASE_BUCKET_PRIVATE');
+    if (!(('id' in bucket && bucket.id === this.config.bucket) || ('name' in bucket && bucket.name === this.config.bucket))) throw new StartupFailure('SUPABASE_BUCKET_ID');
     this.privateVerified = true;
   }
   file(path: string): ReturnType<PhotoBucket['file']> {
