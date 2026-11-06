@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { FieldValue, type Firestore, type DocumentData } from 'firebase-admin/firestore';
-import type { Bucket } from '@google-cloud/storage';
+import type { PhotoBucket } from './storage';
 import { geohashForLocation, geohashQueryBounds } from 'geofire-common';
 import sharp from 'sharp';
 import { z } from 'zod';
@@ -23,7 +23,7 @@ const emptyPreferences: UserPreferences = { followedRegionIds: [], followedCateg
 
 export class Backend {
   readonly now: () => number;
-  constructor(readonly db: Firestore, readonly bucket: Bucket, readonly options: BackendOptions = {}) {
+  constructor(readonly db: Firestore, readonly bucket: PhotoBucket, readonly options: BackendOptions = {}) {
     this.now = options.now ?? Date.now;
     if (options.metricRetentionDays !== undefined) requireThat(Number.isInteger(options.metricRetentionDays) && options.metricRetentionDays > 0 && options.metricRetentionDays <= 14, 'invalid-input', 'Retenção de métricas inválida.');
   }
@@ -130,6 +130,35 @@ export class Backend {
     return { uploadId, stagingPath, expiresAt };
   }
 
+  /** App sends only reserved bytes to our API; administrative Storage credentials stay here. */
+  async uploadPhoto(uid: string, path: string, bytes: Buffer, contentType: string): Promise<void> {
+    requireThat(bytes.length > 0 && bytes.length <= MAX_PHOTO_BYTES, 'invalid-input', 'Foto deve ter até 5 MiB.');
+    requireThat(['image/jpeg', 'image/png', 'image/webp'].includes(contentType), 'invalid-input', 'Tipo de imagem inválido.');
+    const match = /^staging\/([^/]+)\/([a-zA-Z0-9_-]+)\/original$/.exec(path);
+    requireThat(match && match[1] === uid, 'forbidden', 'Reserva inválida.');
+    const ref = this.db.doc(`uploads/${match[2]}`);
+    await this.db.runTransaction(async tx => {
+      const doc = await tx.get(ref);
+      requireThat(doc.exists && doc.get('ownerUid') === uid && doc.get('stagingPath') === path, 'forbidden', 'Upload indisponível.');
+      requireThat(doc.get('status') === 'reserved' && !doc.get('uploadReceived') && millis(doc.get('expiresAt')) > this.now(), 'conflict', 'Upload ocupado, recebido ou expirado.');
+      tx.update(ref, { status: 'uploading', processingStartedAt: time(this.now()) });
+    });
+    try {
+      await this.bucket.file(path).save(bytes, { resumable: false, metadata: { contentType, cacheControl: 'private, no-store' }, preconditionOpts: { ifGenerationMatch: 0 } });
+      await this.db.runTransaction(async tx => {
+        const doc = await tx.get(ref);
+        requireThat(doc.exists && doc.get('status') === 'uploading' && millis(doc.get('expiresAt')) > this.now(), 'conflict', 'Upload expirado durante envio.');
+        tx.update(ref, { status: 'reserved', uploadReceived: true });
+      });
+    } catch (error) {
+      await this.db.runTransaction(async tx => {
+        const doc = await tx.get(ref);
+        if (doc.exists && doc.get('status') === 'uploading') tx.update(ref, { status: 'failed', expiresAt: time(this.now()) });
+      });
+      throw error;
+    }
+  }
+
   async completePhoto(uid: string, raw: unknown) {
     const { uploadId } = z.object({ uploadId: idSchema }).strict().parse(raw);
     const ref = this.db.doc(`uploads/${uploadId}`);
@@ -176,7 +205,7 @@ export class Backend {
     await this.db.runTransaction(async tx => {
       const ref = this.db.doc(`uploads/${uploadId}`); const doc = await tx.get(ref);
       requireThat(doc.exists && doc.get('ownerUid') === uid, 'forbidden', 'Upload indisponível.');
-      requireThat(!['linked', 'processing'].includes(doc.get('status')), 'conflict', 'Foto vinculada ou em processamento.');
+      requireThat(!['linked', 'processing', 'uploading'].includes(doc.get('status')), 'conflict', 'Foto vinculada ou em processamento.');
       tx.update(ref, { status: 'discarded', expiresAt: time(this.now()) });
     });
   }
@@ -443,7 +472,7 @@ export class Backend {
       const claimed = await this.db.runTransaction(async tx => {
         const doc = await tx.get(item.ref);
         if (!doc.exists || doc.get('status') === 'linked' || millis(doc.get('expiresAt')) > now) return null;
-        if (doc.get('status') === 'processing' && millis(doc.get('processingStartedAt')) + 120_000 > now) return null;
+        if (['processing', 'uploading'].includes(doc.get('status')) && millis(doc.get('processingStartedAt')) + 120_000 > now) return null;
         tx.update(item.ref, { status: 'deleting' });
         return doc.data()!;
       });

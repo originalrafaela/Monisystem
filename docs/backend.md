@@ -1,5 +1,10 @@
 # Backend Firebase do Monisystem
 
+> Migração atual: ver [infraestrutura gratuita](free-infrastructure.md) e
+> [validação da migração](../qa/migration.md). Referências a Firebase Storage/Functions
+> neste documento descrevem a implementação anterior e seus testes locais;
+> não são instruções de deployment para a arquitetura Spark/Supabase/Render.
+
 Serviços implementados para execução local e preparação de deployment autorizado.
 A validação local não comprova login Google em Android ou integração das telas.
 Nenhum projeto, bucket, faturamento, serviço pago ou agendamento foi criado.

@@ -12,7 +12,7 @@ A composição `src/components/mobile-composition.ts` lê as variáveis pública
 | `EXPO_PUBLIC_FIREBASE_API_URL` | Endpoint HTTPS da API autenticada; emulador permite HTTP local |
 | `EXPO_PUBLIC_FIREBASE_EMULATOR_HOST` | Somente em `emulator`: `10.0.2.2` no AVD ou `127.0.0.1` com encaminhamento de portas |
 
-Em emuladores, o endpoint deve começar com `http://HOST:5001/demo-monisystem/`; conferir região e nome da função em `backend/firebase.json` e `backend/src/index.ts`. Ambientes remotos recusam projetos `demo-*` e host de emulador. Google Sign In continua dependendo de OAuth válido.
+Para API Node local, usar `http://HOST:PORT/api` e Auth Emulator no host permitido; o caminho antigo `http://HOST:5001/demo-monisystem/` continua somente para regressão da implementação Firebase anterior. Ambientes remotos exigem HTTPS e recusam projetos `demo-*` e host de emulador. Google Sign In continua dependendo de OAuth válido.
 
 `extra.monisystem.mode = "demo"` habilita demonstração explicitamente. Os campos `webClientId`, `endpoint` e `emulatorHost` em `extra` não configuram a composição real. A ausência das variáveis públicas válidas mantém o fluxo real bloqueado.
 
@@ -35,18 +35,18 @@ nomes têm papéis distintos. `.env.local` contém os identificadores públicos 
 e está ignorado. Em outro checkout, copiar `.env.example` para `.env.local`.
 
 `EXPO_PUBLIC_FIREBASE_API_URL` permanece vazio até confirmar a URL HTTPS real da
-função exportada `api`. Não é a URL do Firebase Console nem o domínio Auth.
-Obter a URL na função implantada no Console/Cloud Run ou na saída do deployment
-autorizado; não construir uma URL presumida. Sem endpoint, o parser bloqueia
+API Node no Render, no caminho `/api`. Não é a URL do Firebase Console nem o domínio Auth.
+Obter o hostname real no serviço Render após deployment autorizado e usar `/api`; não construir uma URL presumida. Sem endpoint, o parser bloqueia
 a composição: o login completo depende de `ensureSession`, que cria/recupera o
 perfil pelo backend após autenticação. Nenhum endpoint ou recurso foi criado.
 
 Google Authentication e SHA-1/SHA-256 foram informados como cadastrados pelo
 responsável. Conferir se os SHAs pertencem ao certificado efetivamente usado pelo
 novo development build e se a configuração OAuth permite a conta de teste. No
-Console, ainda verificar/criar Firestore e Storage, implantar regras/índices e
-a API com bucket real, configurar categorias/regiões e planejar limpeza de
-retenção. Provisionamento, deployment e eventual faturamento exigem autorização
+Console, verificar Firestore e suas regras/índices, configurar categorias/regiões.
+As fotos usam Supabase Storage privado, e a API usa Render Free; não habilitar
+Firebase Storage/Functions. Ver [infraestrutura gratuita](free-infrastructure.md)
+para credenciais exclusivas do servidor e limpeza de retenção. Provisionamento, deployment e eventual faturamento exigem autorização
 própria; esta preparação não os executa.
 
 No terminal Linux, após preencher a URL confirmada em `.env.local`, selecionar

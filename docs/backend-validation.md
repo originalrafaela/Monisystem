@@ -1,5 +1,10 @@
 # Validação do backend — 2026-11-05
 
+> Migração atual: ver [infraestrutura gratuita](free-infrastructure.md) e
+> [validação da migração](../qa/migration.md). Referências a Firebase Storage/Functions
+> neste documento descrevem a implementação anterior e seus testes locais;
+> não são instruções de deployment para a arquitetura Spark/Supabase/Render.
+
 A implementação passou nos testes locais abaixo. O MVP Android real ainda não
 está homologado: Google OAuth, configurações Firebase remotas e execução das telas
 com o development build permanecem pendentes. Não houve deploy, commit ou push.

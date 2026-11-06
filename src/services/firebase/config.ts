@@ -17,7 +17,8 @@ export function readFirebaseClientConfiguration(env: Readonly<Record<string, str
   if (environment === 'emulator') {
     const emulatorHost = env.EXPO_PUBLIC_FIREBASE_EMULATOR_HOST;
     if (projectId !== 'demo-monisystem' || !['127.0.0.1', '10.0.2.2'].includes(emulatorHost ?? '')
-      || !endpoint.startsWith(`http://${emulatorHost}:5001/demo-monisystem/`)) throw new Error('Configuração de emulador inválida.');
+      || new URL(endpoint).protocol !== 'http:' || new URL(endpoint).hostname !== emulatorHost
+      || (new URL(endpoint).pathname !== '/api' && !endpoint.startsWith(`http://${emulatorHost}:5001/demo-monisystem/`))) throw new Error('Configuração de emulador inválida.');
     return { environment: 'emulator', projectId, webClientId, endpoint, emulatorHost: emulatorHost as '127.0.0.1' | '10.0.2.2' };
   }
   if (projectId.startsWith('demo-') || new URL(endpoint).protocol !== 'https:'

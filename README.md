@@ -6,15 +6,17 @@ trânsito, acidentes, alagamentos, inundações, quedas de árvores e infraestru
 ## Estado atual
 
 Implementação Expo SDK 55/React Native/TypeScript com fluxos nativos de login
-Google, câmera, GPS, publicação, feed de 5 km, perfil e preferências. Backend
-Firebase validado localmente com Auth, Firestore, Storage e Functions em emuladores.
+Google, câmera, GPS, publicação, feed de 5 km, perfil e preferências. A arquitetura
+alvo usa Firebase Authentication/Firestore Spark, bucket privado Supabase Storage
+Free e API Node.js no Render Free. Migração e resultados em
+[infraestrutura gratuita](docs/free-infrastructure.md) e [QA](qa/migration.md).
 Configuração ausente bloqueia o fluxo real; demonstração exige seleção explícita.
 
-TypeScript, ESLint e 40 testes rápidos passaram. A integração passou em 14
-subcenários, e regras complementares verificaram 18 negações e um controle permitido.
+A migração passou em TypeScript, ESLint e 63 testes rápidos com Node 22.23.0.
+A integração Node HTTP com Auth/Firestore emulados e Storage privado simulado
+passou em 14 subcenários. Resultados anteriores constam nos relatórios históricos.
 Esses resultados não homologam o Android real: faltam configuração Firebase/OAuth,
-development build, dispositivo e teste completo incluindo reabertura. Reteste em
-Node 22 e triagem dos audits também permanecem pendentes.
+development build, dispositivo e teste completo incluindo reabertura. A triagem dos audits também permanece pendente.
 
 Consulte [validação QA](qa/continuous.md), [backend](docs/backend-validation.md)
 e [configuração Android](docs/mobile-configuration.md).
@@ -93,9 +95,11 @@ e [decisão inicial](docs/adr/0001-application-foundation.md).
 
 Análise de dependências e plano de correção em [segurança](docs/security.md).
 
-SDKs Firebase/Google e backend estão implementados. Nenhum projeto remoto foi
-provisionado nem Functions implantadas por esta entrega. Configuração OAuth,
-catálogos e infraestrutura reais continuam pendentes. Os fluxos usam os contratos
+SDKs Firebase/Google e backend estão implementados. A API Node verifica tokens
+Firebase e acessa fotos privadas no Supabase pelo servidor. Não implantar Firebase
+Storage ou Cloud Functions nesta arquitetura. Nenhum deploy Render ou bucket
+Supabase foi criado por esta entrega. Configuração OAuth, catálogos e URLs reais
+continuam pendentes. Os fluxos usam os contratos
 de `src/services/contracts.ts`; notificações push e limpeza remota automática
 ainda não foram configuradas.
 

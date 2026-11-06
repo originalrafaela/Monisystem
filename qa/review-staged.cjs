@@ -22,6 +22,9 @@ if (valid.status !== 0) {
       ['Conta administrativa', /"type"\s*:\s*"service_account"/],
       ['Token GitHub', /\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,})\b/],
       ['Chave AWS', /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/],
+      ['Segredo administrativo Supabase', /\bsb_secret_[A-Za-z0-9]{20,}\b/],
+      ['Token de plataforma Supabase', /\bsbp_[A-Za-z0-9]{20,}\b/],
+      ['Token de plataforma Render', /\brnd_[A-Za-z0-9]{20,}\b/],
       ['Token JWT literal', /\beyJ[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{15,}\b/],
     ]) if (pattern.test(staged.stdout)) findings.push({ file: filename, reason });
   }

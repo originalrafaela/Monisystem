@@ -1,9 +1,8 @@
 import { getApp } from '@react-native-firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithCredential, signOut, onAuthStateChanged, getIdToken, connectAuthEmulator } from '@react-native-firebase/auth';
-import { getStorage, ref, putFile, connectStorageEmulator } from '@react-native-firebase/storage';
 import { GoogleSignin, isSuccessResponse } from '@react-native-google-signin/google-signin';
 import { File, Paths } from 'expo-file-system';
-import { createFirebaseServices, createHttpTransport, readProtectedPhoto } from './index';
+import { createFirebaseServices, createHttpTransport, readProtectedPhoto, createApiReadiness, uploadProtectedPhoto } from './index';
 import type { FirebaseClientConfiguration } from './config';
 import { createNativeAuthDriver, validateCaptureUri } from './native-driver';
 
@@ -13,11 +12,10 @@ export function createAndroidFirebaseServices(config: Pick<FirebaseClientConfigu
   if (!config.webClientId.endsWith('.apps.googleusercontent.com')) throw new Error('OAuth webClientId obrigatório.');
   GoogleSignin.configure({ webClientId: config.webClientId });
   const auth = getAuth();
-  const storage = getStorage();
   if (config.emulatorHost) {
-    if (!config.endpoint.startsWith(`http://${config.emulatorHost}:5001/demo-monisystem/`)) throw new Error('Endpoint de emulador inválido.');
+    const endpoint = new URL(config.endpoint);
+    if (endpoint.hostname !== config.emulatorHost || endpoint.protocol !== 'http:') throw new Error('Endpoint de emulador inválido.');
     connectAuthEmulator(auth, `http://${config.emulatorHost}:9099`);
-    connectStorageEmulator(storage, config.emulatorHost, 9199);
   }
   const driver = createNativeAuthDriver({
     async googleSignIn() {
@@ -31,8 +29,9 @@ export function createAndroidFirebaseServices(config: Pick<FirebaseClientConfigu
     async idToken() { return auth.currentUser ? getIdToken(auth.currentUser) : null; },
     observe(listener) { return onAuthStateChanged(auth, user => listener(user?.uid ?? null)); },
   });
+  const readiness = createApiReadiness({ endpoint: config.endpoint });
   const transport = createHttpTransport({
-    endpoint: config.endpoint, auth: driver,
+    endpoint: config.endpoint, auth: driver, readiness,
     async uploadFile(path, localUri) {
       const uid = auth.currentUser?.uid;
       if (!uid || !path.startsWith(`staging/${uid}/`) || !/^staging\/[^/]+\/[a-zA-Z0-9_-]+\/original$/.test(path)) throw new Error('Reserva inválida.');
@@ -41,13 +40,13 @@ export function createAndroidFirebaseServices(config: Pick<FirebaseClientConfigu
       if (!file.exists || file.size <= 0 || file.size > 5 * 1024 * 1024) throw new Error('Foto deve ter até 5 MiB.');
       const contentType = file.type;
       if (!['image/jpeg', 'image/png', 'image/webp'].includes(contentType)) throw new Error('Formato inválido.');
-      await putFile(ref(storage, path), localUri, { contentType });
+      return uploadProtectedPhoto({ endpoint: config.endpoint, auth: driver, stagingPath: path, bytes: await file.bytes(), contentType, readiness });
     },
   });
   return { ...createFirebaseServices(driver, transport),
-    readPhoto: (storagePath: string) => readProtectedPhoto({ endpoint: config.endpoint, auth: driver, storagePath }),
+    readPhoto: (storagePath: string) => readProtectedPhoto({ endpoint: config.endpoint, auth: driver, storagePath, readiness }),
     async resolvePhoto(storagePath: string): Promise<string> {
-      const photo = await readProtectedPhoto({ endpoint: config.endpoint, auth: driver, storagePath });
+      const photo = await readProtectedPhoto({ endpoint: config.endpoint, auth: driver, storagePath, readiness });
       if (!photo.ok) throw new Error(photo.error.message);
       const chunks: string[] = [];
       for (let offset = 0; offset < photo.value.length; offset += 8192) {

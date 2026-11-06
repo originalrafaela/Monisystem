@@ -1,0 +1,26 @@
+# Prepared configuration only. Creating/syncing this Blueprint requires explicit approval.
+services:
+  - type: web
+    name: monisystem-api
+    runtime: node
+    plan: free
+    branch: main
+    autoDeployTrigger: off
+    buildCommand: npm ci --prefix backend && npm --prefix backend run build
+    startCommand: npm --prefix backend start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 22.23.0
+      - key: MONISYSTEM_ENV
+        value: production
+      - key: GCLOUD_PROJECT
+        value: monisystem-f6d63
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKET
+        sync: false

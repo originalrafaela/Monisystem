@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-06",
+  "node": "22.23.0",
+  "typecheck": "passed",
+  "eslint": "passed",
+  "fastTests": {
+    "passed": 63,
+    "failed": 0
+  },
+  "nodeApiIntegration": {
+    "subscenarios": 14,
+    "nodeCounterIncludingParent": 15,
+    "failed": 0,
+    "skipped": 0,
+    "firebase": "Auth and Firestore local emulators",
+    "storage": "local private Supabase REST fixture"
+  },
+  "androidExport": {
+    "modules": 1187,
+    "deviceValidated": false
+  },
+  "externalDeployPerformed": false,
+  "hostedServicesValidated": false
+}

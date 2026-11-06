@@ -1,5 +1,15 @@
 # Arquitetura
 
+## Arquitetura atual do MVP
+
+Firebase Authentication e Firestore Spark mantêm identidade, dados e transações.
+A API Node.js no Render Free valida tokens e autorização; fotos ficam em bucket
+privado Supabase Storage Free, com acesso exclusivo pelo servidor. Não há Firebase
+Storage ou Cloud Functions no caminho remoto. Os contratos públicos permanecem.
+Detalhes operacionais e limites em [infraestrutura gratuita](free-infrastructure.md).
+As seções de planejamento abaixo registram decisões originais e devem ser lidas
+com essa substituição de infraestrutura.
+
 ## Limites
 
 O aplicativo Expo usa TypeScript estrito e Expo Router. As rotas coordenam a
