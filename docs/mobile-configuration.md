@@ -34,11 +34,13 @@ do backend usa `EXPO_PUBLIC_FIREBASE_ENV=development`; o servidor remoto exige
 nomes têm papéis distintos. `.env.local` contém os identificadores públicos locais
 e está ignorado. Em outro checkout, copiar `.env.example` para `.env.local`.
 
-`EXPO_PUBLIC_FIREBASE_API_URL` permanece vazio até confirmar a URL HTTPS real da
-API Node no Render, no caminho `/api`. Não é a URL do Firebase Console nem o domínio Auth.
-Obter o hostname real no serviço Render após deployment autorizado e usar `/api`; não construir uma URL presumida. Sem endpoint, o parser bloqueia
-a composição: o login completo depende de `ensureSession`, que cria/recupera o
-perfil pelo backend após autenticação. Nenhum endpoint ou recurso foi criado.
+`EXPO_PUBLIC_FIREBASE_API_URL` está configurado como
+`https://monisystem-api.onrender.com/api` no modelo público e no ambiente local.
+Em 2026-11-06, a consulta pública a `/healthz` retornou status ready após implantação
+realizada pelo responsável. Não é a URL do Firebase Console nem o domínio Auth.
+O login completo depende de `ensureSession`, que cria/recupera o perfil pelo
+backend após autenticação. A execução desse fluxo no Android continua pendente.
+Esta atualização não realizou deployment nem alterou o serviço Render.
 
 Google Authentication e SHA-1/SHA-256 foram informados como cadastrados pelo
 responsável. Conferir se os SHAs pertencem ao certificado efetivamente usado pelo
