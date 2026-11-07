@@ -36,6 +36,7 @@
       "monisystem": {
         "mode": "firebase"
       }
-    }
+    },
+    "icon": "./assets/brand/app-icon.png"
   }
 }

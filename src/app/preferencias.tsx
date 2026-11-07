@@ -5,7 +5,7 @@ import { Screen } from '../components/Screen';
 import { Button } from '../components/Button';
 import { useMobile } from '../components/MobileProvider';
 import { categoryIds, categoryLabels, demoRegions } from '../components/demo-data';
-import { ui } from '../components/theme';
+import { colors, ui } from '../components/theme';
 export default function PreferencesScreen() {
   const { preferences, setPreferences, services, demo, regions, categories } = useMobile();
   const [value, setValue] = useState(preferences);
@@ -40,7 +40,7 @@ export default function PreferencesScreen() {
     <Text style={ui.heading}>Até três prioridades</Text><View style={ui.row}>{categoryOptions.map(({ id, label }) => <Button key={id} disabled={busy || loading || !loaded} title={label} selected={value.priorityCategoryIds.some(item => item === id)} secondary={!value.priorityCategoryIds.some(item => item === id)} onPress={() => priority(id)} />)}</View>
     <Text style={ui.heading}>Regiões acompanhadas {demo ? '(exemplos)' : ''}</Text><View style={ui.row}>{regionOptions.map(({ id, name }) => <Button key={id} disabled={busy || loading || !loaded} title={name} selected={value.followedRegionIds.includes(id)} secondary={!value.followedRegionIds.includes(id)} onPress={() => setValue({ ...value, followedRegionIds: value.followedRegionIds.includes(id) ? value.followedRegionIds.filter(item => item !== id) : [...value.followedRegionIds, id] })} />)}</View>
     {loading && <Text style={ui.body}>Carregando preferências…</Text>}
-    <View style={ui.row}><Text style={ui.label}>Permitir notificações quando o serviço estiver disponível</Text><Switch accessibilityLabel="Receber notificações" disabled={busy || loading || !loaded} value={value.notificationsEnabled} onValueChange={notificationsEnabled => setValue({ ...value, notificationsEnabled })} /></View>
+    <View style={ui.row}><Text style={ui.label}>Permitir notificações quando o serviço estiver disponível</Text><Switch trackColor={{ false: colors.border, true: colors.accent }} thumbColor={colors.surface} ios_backgroundColor={colors.border} accessibilityLabel="Receber notificações" disabled={busy || loading || !loaded} value={value.notificationsEnabled} onValueChange={notificationsEnabled => setValue({ ...value, notificationsEnabled })} /></View>
     <Button title="Salvar preferências" disabled={loading || !loaded} loading={busy} onPress={() => void save()} />{!!message && <Text style={ui.body} accessibilityLiveRegion="polite">{message}</Text>}
   </Screen>;
 }

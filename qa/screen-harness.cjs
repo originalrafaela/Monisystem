@@ -46,7 +46,7 @@ exports.screen = function screen(name, mobile) {
     if (id.endsWith('/MobileProvider')) return { useMobile: () => mobile };
     if (id.endsWith('/theme')) return { colors: {}, ui: {} };
     if (id.endsWith('/demo-data')) return { categoryIds: ['traffic', 'accident', 'waterlogging', 'flood'], categoryLabels: { traffic: 'Trânsito', accident: 'Acidente', waterlogging: 'Alagamento', flood: 'Enchente' }, demoRegions: {} };
-    for (const component of ['Button', 'Screen', 'DemoBanner', 'FeedbackState', 'IncidentCard', 'ReportPhoto']) {
+    for (const component of ['BrandLogo', 'Button', 'Screen', 'DemoBanner', 'FeedbackState', 'IncidentCard', 'ReportPhoto']) {
       if (id.endsWith('/' + component)) return { [component]: component };
     }
     if (id.startsWith('.')) {

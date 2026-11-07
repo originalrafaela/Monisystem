@@ -40,12 +40,12 @@ export default function DetailsScreen() {
   const location = incident?.location ?? reports[0]?.location;
   return <Screen><Button title="Voltar ao feed" secondary onPress={() => router.replace('/ocorrencias')} />{demo && <DemoBanner />}
     <View style={ui.card}><Text style={ui.title}>{categoryId ? categories.find(item => item.id === categoryId)?.label ?? categoryLabels[categoryId] : 'Detalhes da ocorrência'}</Text>
-      {incident && <><Text style={ui.body}>{incident.state === 'active' ? 'Alerta ativo' : 'Alerta expirado'}</Text><Text style={ui.body}>{incident.reportCount} relatos relacionados</Text><Text style={ui.body}>{new Date(incident.updatedAt).toLocaleString('pt-BR')}</Text></>}
+      {incident && <><Text style={ui.label}>{incident.state === 'active' ? 'Alerta ativo' : 'Alerta expirado'}</Text><Text style={ui.body}>{incident.reportCount} relatos relacionados</Text><Text style={ui.caption}>{new Date(incident.updatedAt).toLocaleString('pt-BR')}</Text></>}
       {regionId && <Text style={ui.heading}>{regions.find(item => item.id === regionId)?.name ?? regionId}</Text>}
       {location && <Text style={ui.body}>Localização aproximada: {location.latitude.toFixed(3)}, {location.longitude.toFixed(3)}</Text>}
       {demo && <Text style={ui.body}>Fotos e descrições não fazem parte deste exemplo fictício.</Text>}
     </View>
-    {reports.map(report => <View style={ui.card} key={report.id}><ReportPhoto photo={report.photo} /><Text style={ui.body}>{report.description}</Text><Text style={ui.body}>{new Date(report.createdAt).toLocaleString('pt-BR')}</Text><Text style={ui.body}>Alerta {report.alertExpiresAt > Date.now() ? 'vigente' : 'expirado'}</Text></View>)}
+    {reports.map(report => <View style={ui.card} key={report.id}><ReportPhoto photo={report.photo} /><Text style={ui.body}>{report.description}</Text><Text style={ui.caption}>{new Date(report.createdAt).toLocaleString('pt-BR')}</Text><Text style={ui.body}>Alerta {report.alertExpiresAt > Date.now() ? 'vigente' : 'expirado'}</Text></View>)}
     {busy && <Text accessibilityLiveRegion="polite" style={ui.body}>Carregando relatos…</Text>}
     {!!error && <Text accessibilityLiveRegion="polite" style={ui.body}>{error}</Text>}
     {!demo && !busy && !error && !reports.length && <Text style={ui.body}>Nenhum relato disponível. A ocorrência pode ter expirado.</Text>}

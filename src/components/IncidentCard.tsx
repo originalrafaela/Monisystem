@@ -16,7 +16,7 @@ export function IncidentCard({ incident, center }: { incident: Incident; center?
     return () => { active = false; };
   }, [services, incident.id, incident.updatedAt]);
   return <View style={ui.card}>
-    <View style={ui.row}><Text style={styles.badge}>{incident.state === 'active' ? '● Alerta ativo' : 'Alerta expirado'}</Text>{demo && <Text style={styles.detail}>SIMULADO</Text>}</View>
+    <View style={ui.row}><Text style={[styles.badge, incident.state === 'expired' && styles.expiredBadge]}>{incident.state === 'active' ? '● Alerta ativo' : 'Alerta expirado'}</Text>{demo && <Text style={styles.detail}>SIMULADO</Text>}</View>
     <Text accessibilityRole="header" style={ui.heading}>{categories.find(item => item.id === incident.categoryId)?.label ?? categoryLabels[incident.categoryId]}</Text>
     <Text style={ui.body}>{regions.find(item => item.id === incident.regionId)?.name ?? (demo ? demoRegions[incident.regionId] : incident.regionId)}</Text>
     {center && <Text style={styles.detail}>A aproximadamente {distance(center, incident.location).toFixed(1)} km de sua posição de consulta</Text>}
@@ -33,6 +33,7 @@ function distance(a: Coordinates, b: Coordinates) {
   return 6371 * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(Math.max(0, 1 - value)));
 }
 const styles = StyleSheet.create({
-  badge: { fontSize: 12, fontWeight: '700', color: colors.primary, backgroundColor: colors.accent, borderRadius: 8, padding: 7 },
+  badge: { fontSize: 12, fontWeight: '700', color: colors.primary, backgroundColor: colors.attentionBackground, borderRadius: 8, padding: 7 },
+  expiredBadge: { backgroundColor: colors.background, color: colors.muted },
   detail: { fontSize: 13, lineHeight: 20, color: colors.muted },
 });
