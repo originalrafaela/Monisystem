@@ -263,7 +263,7 @@ export class Backend {
       const geohash = geohashForLocation([input.location.latitude, input.location.longitude]);
       tx.set(gateRef, { version: (gate.get('version') ?? 0) + 1 });
       tx.create(reportRef, { publicProfileId: session.publicProfileId, incidentId: target.id,
-        description: input.description, categoryId: input.categoryId, photo: upload.get('photo'), location: input.location,
+        title: input.title ?? null, description: input.description, categoryId: input.categoryId, photo: upload.get('photo'), location: input.location,
         geohash, regionId, ownerUid: uid, uploadId: upload.id,
         createdAt: time(now), alertExpiresAt: time(alertExpiresAt), deleteAfter: time(deleteAfter), deletionState: 'retained' });
       if (selected) tx.update(target, { reportCount: FieldValue.increment(1), updatedAt: time(now),

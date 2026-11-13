@@ -15,6 +15,7 @@ export const coordinatesSchema = z.object({
   longitude: z.number().finite().min(-180).max(180),
 }).strict();
 export const createReportSchema = z.object({
+  title: z.string().trim().min(3).max(120).optional(),
   idempotencyKey: z.string().min(8).max(128),
   description: z.string().trim().min(1).max(2_000),
   categoryId: categorySchema,
